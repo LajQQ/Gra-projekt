@@ -225,6 +225,7 @@ def play_game(enemies_count, levels, time_limit):
             if new_player in enemies:
                 if "Miecz" in inventory:
                     print("Pokonałeś przeciwnika!")
+                    time.sleep(1)
                     inventory.remove("Miecz")
                     enemies.remove(new_player)
                     map[new_player[0]][new_player[1]] = " "
