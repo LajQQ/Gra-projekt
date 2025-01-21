@@ -6,4 +6,4 @@ Otwieraj skarby (S) i zbieraj przedmioty które pomogą ci w przejściu gry!
 
 Jak uruchomić?
 
-Pobierz plik labiryntgame.py potem wpisz w terminalu python3 labiryntgame.py
+Pobierz plik labiryntgame.py potem wpisz w terminalu python3 labiryntgame.py albo python labiryntgame.py
