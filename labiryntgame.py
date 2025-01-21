@@ -62,10 +62,9 @@ def move_enemies(map, enemies):
         map[ex][ey] = "X"
     return new_enemies
 
-def place_items(map, item, count_range):
+def place_items(map, item, count):
     size = len(map)
     items = []
-    count = random.randint(*count_range)
     while len(items) < count:
         x, y = random.randint(0, size - 1), random.randint(0, size - 1)
         if map[x][y] == " ":
@@ -80,8 +79,8 @@ def main_menu():
         print("2. Ustawienia")
         print("3. Instrukcje")
         print("4. Wyjdź")
-        choice = input("Wybierz opcję: ")
-        if choice in ["1", "2", "3", "4"]:
+        choice = input("Wybierz opcję: ").lower()
+        if choice in ["1", "2", "3", "4","q","quit"]:
             return choice
         else:
             print("Niepoprawny wybór. Spróbuj ponownie.")
@@ -128,9 +127,9 @@ def play_game(enemies_count, levels, time_limit):
         print(f"Poziom {level}")
 
         map, player, exit = generate_map(10)
-        enemies = place_items(map, "X", (enemies_count, enemies_count))
-        black_holes = place_items(map, "O", (1, 2))
-        treasures = place_items(map, "S", (1, 3))
+        enemies = place_items(map, "X", enemies_count)
+        treasures = place_items(map, "S", random.randint(1, 3))
+        holes = place_items(map, "O", random.randint(1, 2))
 
         start_time = time.time()
         lives = 1
@@ -147,6 +146,10 @@ def play_game(enemies_count, levels, time_limit):
                 return
 
             move = input("Ruch (WASD, B aby użyć bomby): ").lower()
+            if move in ["q", "quit"]:
+                print("Powrót do menu...")
+                time.sleep(1)
+                return
             if move not in ["w", "a", "s", "d", "b"]:
                 print("Niepoprawny ruch!")
                 time.sleep(1)
@@ -184,7 +187,7 @@ def play_game(enemies_count, levels, time_limit):
                         print("Zostałeś pokonany!")
                         return
 
-            elif new_player in black_holes:
+            elif new_player in holes:
                 if random.random() < 0.1:
                     print("Wpadłeś w czarną dziurę i zginąłeś!")
                     return
@@ -195,10 +198,11 @@ def play_game(enemies_count, levels, time_limit):
                         if (nx, ny) in enemies:
                             lives -= 1
                             if lives == 0:
-                                print("Przeskoczyłeś czarną dziurę, ale przeciwnik cię pokonał!")
+                                print("Przeskoczyłeś dziurę, ale przeciwnik cię pokonał!")
+                                time.sleep(1)
                                 return
                             else:
-                                print("Przeskoczyłeś czarną dziurę, ale straciłeś życie z powodu przeciwnika!")
+                                print("Przeskoczyłeś dziurę, ale straciłeś życie z powodu przeciwnika!")
                                 time.sleep(1)
                         elif map[nx][ny] == " ":
                             new_player = (nx, ny)
@@ -244,5 +248,11 @@ if __name__ == "__main__":
         elif choice == "3":
             instructions()
         elif choice == "4":
-            print("Dziękujemy za grę!")
+            print("Wychodzenie...")
+            break
+        elif choice == "q":
+            print("Wychodzenie...")
+            break
+        elif choice == "quit":
+            print("Wychodzenie...")
             break
