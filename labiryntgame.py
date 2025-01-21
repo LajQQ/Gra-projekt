@@ -7,28 +7,49 @@ def clear_screen():
 
 def generate_map(size):
     while True:
-        map = [["#" if random.random() < 0.3 else " " for _ in range(size)] for _ in range(size)]
-        start = (random.randint(0, size - 1), random.randint(0, size - 1))
-        exit = (random.randint(0, size - 1), random.randint(0, size - 1))
-        if start != exit and abs(start[0] - exit[0]) + abs(start[1] - exit[1]) > 3:
-            map[start[0]][start[1]] = "P"
-            map[exit[0]][exit[1]] = "E"
+        map = []
+        for i in range(size):
+            row = []
+            for j in range(size):
+                if random.random() < 0.3:
+                    row.append("#")
+                else:
+                    row.append(" ")
+            map.append(row)
+        start_x = random.randint(0, size - 1)
+        start_y = random.randint(0, size - 1)
+        start = (start_x, start_y)
+
+        exit_x = random.randint(0, size - 1)
+        exit_y = random.randint(0, size - 1)
+        exit = (exit_x, exit_y)
+
+        distance = abs(start_x - exit_x) + abs(start_y - exit_y)
+        if start != exit and distance > 3:
+            map[start_x][start_y] = "P"
+            map[exit_x][exit_y] = "E"
+
             if path_exists(map, start, exit):
                 return map, start, exit
 
 def path_exists(map, start, exit):
     size = len(map)
-    visited = set()
+    checked = []
     stack = [start]
 
-    while stack:
-        x, y = stack.pop()
-        if (x, y) == exit:
+    while len(stack) > 0:
+        current_position = stack.pop()
+        x, y = current_position
+
+        if current_position == exit:
             return True
-        if (x, y) not in visited:
-            visited.add((x, y))
-            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                nx, ny = x + dx, y + dy
+
+        if current_position not in checked:
+            checked.append(current_position)
+            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+            for dx, dy in directions:
+                nx = x + dx
+                ny = y + dy
                 if 0 <= nx < size and 0 <= ny < size and map[nx][ny] != "#":
                     stack.append((nx, ny))
     return False
@@ -39,9 +60,21 @@ def print_map(map):
 
 def move_player(map, position, direction):
     x, y = position
-    moves = {"w": (-1, 0), "s": (1, 0), "a": (0, -1), "d": (0, 1)}
-    dx, dy = moves.get(direction, (0, 0))
-    nx, ny = x + dx, y + dy
+
+    if direction == "w":
+        dx, dy = -1, 0
+    elif direction == "s":
+        dx, dy = 1, 0
+    elif direction == "a":
+        dx, dy = 0, -1
+    elif direction == "d":
+        dx, dy = 0, 1
+    else:
+        dx, dy = 0, 0
+
+    nx = x + dx
+    ny = y + dy
+
     if 0 <= nx < len(map) and 0 <= ny < len(map[0]) and map[nx][ny] != "#":
         return (nx, ny)
     return position
@@ -50,14 +83,23 @@ def move_enemies(map, enemies):
     new_enemies = []
     for ex, ey in enemies:
         map[ex][ey] = " "
-        directions = [(ex + dx, ey + dy) for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]]
-        random.shuffle(directions)
-        for nx, ny in directions:
+        possible_directions = [
+            (ex - 1, ey),
+            (ex + 1, ey),
+            (ex, ey - 1),
+            (ex, ey + 1)
+        ]
+        random.shuffle(possible_directions)
+        moved = False
+        for nx, ny in possible_directions:
             if 0 <= nx < len(map) and 0 <= ny < len(map[0]) and map[nx][ny] == " ":
                 new_enemies.append((nx, ny))
+                moved = True
                 break
-        else:
+
+        if not moved:
             new_enemies.append((ex, ey))
+
     for ex, ey in new_enemies:
         map[ex][ey] = "X"
     return new_enemies
@@ -66,7 +108,8 @@ def place_items(map, item, count):
     size = len(map)
     items = []
     while len(items) < count:
-        x, y = random.randint(0, size - 1), random.randint(0, size - 1)
+        x = random.randint(0, size - 1)
+        y = random.randint(0, size - 1)
         if map[x][y] == " ":
             map[x][y] = item
             items.append((x, y))
@@ -122,6 +165,8 @@ def instructions():
 
 def play_game(enemies_count, levels, time_limit):
     inventory = []
+    lives = 1
+
     for level in range(1, levels + 1):
         clear_screen()
         print(f"Poziom {level}")
@@ -130,9 +175,7 @@ def play_game(enemies_count, levels, time_limit):
         enemies = place_items(map, "X", enemies_count)
         treasures = place_items(map, "S", random.randint(1, 3))
         holes = place_items(map, "O", random.randint(1, 2))
-
         start_time = time.time()
-        lives = 1
 
         while True:
             clear_screen()
@@ -145,13 +188,15 @@ def play_game(enemies_count, levels, time_limit):
                 print("Czas się skończył! Przegrałeś.")
                 return
 
-            move = input("Ruch (WASD, B aby użyć bomby): ").lower()
+            move = input("Ruch WASD, B aby użyć bomby: ").lower()
+
             if move in ["q", "quit"]:
                 print("Powrót do menu...")
                 time.sleep(1)
                 return
+
             if move not in ["w", "a", "s", "d", "b"]:
-                print("Niepoprawny ruch!")
+                print("Niepoprawny ruch! Użyj WASD lub B.")
                 time.sleep(1)
                 continue
 
@@ -173,8 +218,10 @@ def play_game(enemies_count, levels, time_limit):
                 else:
                     print("Nie masz bomby!")
                     time.sleep(1)
+                continue
 
             new_player = move_player(map, player, move)
+
             if new_player in enemies:
                 if "Miecz" in inventory:
                     print("Pokonałeś przeciwnika!")
@@ -184,38 +231,51 @@ def play_game(enemies_count, levels, time_limit):
                 else:
                     lives -= 1
                     if lives == 0:
-                        print("Zostałeś pokonany!")
+                        print("Zostałeś pokonany! Gra skończona.")
                         return
 
             elif new_player in holes:
                 if random.random() < 0.1:
-                    print("Wpadłeś w czarną dziurę i zginąłeś!")
-                    return
-                else:
-                    dx, dy = {"w": (-1, 0), "s": (1, 0), "a": (0, -1), "d": (0, 1)}[move]
-                    nx, ny = new_player[0] + dx, new_player[1] + dy
-                    if 0 <= nx < len(map) and 0 <= ny < len(map[0]):
-                        if (nx, ny) in enemies:
-                            lives -= 1
-                            if lives == 0:
-                                print("Przeskoczyłeś dziurę, ale przeciwnik cię pokonał!")
-                                time.sleep(1)
-                                return
-                            else:
-                                print("Przeskoczyłeś dziurę, ale straciłeś życie z powodu przeciwnika!")
-                                time.sleep(1)
-                        elif map[nx][ny] == " ":
-                            new_player = (nx, ny)
+                    lives -= 1
+                    if lives == 0:
+                        print("Wpadłeś do dziury i straciłeś ostatnie życie! Gra skończona.")
+                        time.sleep(1)
+                        return
+                    else:
+                        print("Wpadłeś do dziury i straciłeś życie!")
+                        time.sleep(1)
+                        continue
+                
+                dx, dy = {"w": (-1, 0), "s": (1, 0), "a": (0, -1), "d": (0, 1)}[move]
+                nx, ny = new_player[0] + dx, new_player[1] + dy
+                if 0 <= nx < len(map) and 0 <= ny < len(map[0]):
+                    if map[nx][ny] == "#":
+                        print("Za dziurą jest ściana. Nie możesz przeskoczyć!")
+                        time.sleep(1)
+                        continue
+                    elif (nx, ny) in enemies:
+                        lives -= 1
+                        if lives == 0:
+                            print("Za dziurą był przeciwnik. Straciłeś życie i zginąłeś!")
+                            time.sleep(1)
+                            return
                         else:
-                            print("Nie możesz przeskoczyć! Blokada.")
+                            print("Za dziurą był przeciwnik. Straciłeś życie!")
                             time.sleep(1)
                             continue
+                    elif map[nx][ny] == " ":
+                        new_player = (nx, ny)
+                else:
+                    print("Za dziurą jest koniec mapy. Nie możesz przeskoczyć!")
+                    time.sleep(1)
+                    continue
 
             elif new_player in treasures:
                 if lives == 2:
                     treasure = random.choice(["Bomba", "Miecz"])
                 else:
                     treasure = random.choice(["Bomba", "Miecz", "Serce"])
+
                 if treasure == "Serce" and lives < 2:
                     lives += 1
                 elif treasure != "Serce":
@@ -224,8 +284,8 @@ def play_game(enemies_count, levels, time_limit):
                 treasures.remove(new_player)
 
             if new_player == exit:
-                print(f"Brawo! Poziom {level} ukończony.")
-                input("Enter aby kontynuować.")
+                print(f"Brawo! Ukończyłeś poziom {level}.")
+                input("Naciśnij Enter, aby przejść dalej.")
                 break
 
             map[player[0]][player[1]] = " "
@@ -234,7 +294,8 @@ def play_game(enemies_count, levels, time_limit):
 
             enemies = move_enemies(map, enemies)
 
-    print("Przeszedłeś wszystkie poziomy! Gratulacje!")
+    print("Gratulacje! Ukończyłeś wszystkie poziomy!")
+
 
 if __name__ == "__main__":
     enemies_count, levels, time_limit = 3, 3, 120
