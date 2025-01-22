@@ -11,7 +11,7 @@ def generate_map(size):
         for i in range(size):
             row = []
             for j in range(size):
-                if random.random() < 0.3:
+                if random.random() < 0.55:
                     row.append("#")
                 else:
                     row.append(" ")
@@ -169,6 +169,7 @@ def play_game(enemies_count, levels, time_limit):
     for level in range(1, levels + 1):
         clear_screen()
         print(f"Poziom {level}")
+        time.sleep(1)
 
         map, player, exit = generate_map(10)
         enemies = place_items(map, "X", enemies_count)
