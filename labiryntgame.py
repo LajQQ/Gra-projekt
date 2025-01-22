@@ -11,7 +11,7 @@ def generate_map(size):
         for i in range(size):
             row = []
             for j in range(size):
-                if random.random() < 0.55:
+                if random.random() < 0.5:
                     row.append("#")
                 else:
                     row.append(" ")
