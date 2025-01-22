@@ -2,9 +2,6 @@ import random
 import time
 import os
 
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
 def generate_map(size, min_distance=7):
     while True:
         map = []
@@ -168,7 +165,7 @@ def play_game(enemies_count, levels, time_limit):
     lives = 1
 
     for level in range(1, levels + 1):
-        clear_screen()
+        os.system('cls' if os.name == 'nt' else 'clear')
         print(f"Poziom {level}")
         time.sleep(1)
 
@@ -179,7 +176,7 @@ def play_game(enemies_count, levels, time_limit):
         start_time = time.time()
 
         while True:
-            clear_screen()
+            os.system('cls' if os.name == 'nt' else 'clear')
             print_map(map)
             print(f"Życia: {lives}, Ekwipunek: {inventory}")
             remaining_time = time_limit - int(time.time() - start_time)
@@ -222,7 +219,6 @@ def play_game(enemies_count, levels, time_limit):
                 continue
 
             nextplayermove = move_player(map, player, move)
-            os.system('cls' if os.name == 'nt' else 'clear')
 
             if nextplayermove in enemies:
                 if "Miecz" in inventory:
