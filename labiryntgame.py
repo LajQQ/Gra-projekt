@@ -222,7 +222,7 @@ def play_game(enemies_count, levels, time_limit):
 
             if nextplayermove in enemies:
                 if "Miecz" in inventory:
-                    print("Pokonałeś przeciwnika!")
+                    print("Po zaciętej walce z przeciwnikiem pokonujesz go!")
                     time.sleep(1)
                     inventory.remove("Miecz")
                     enemies.remove(nextplayermove)
