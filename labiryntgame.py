@@ -5,7 +5,7 @@ import os
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def generate_map(size):
+def generate_map(size, min_distance=5):
     while True:
         map = []
         for i in range(size):
@@ -16,6 +16,7 @@ def generate_map(size):
                 else:
                     row.append(" ")
             map.append(row)
+
         start_x = random.randint(0, size - 1)
         start_y = random.randint(0, size - 1)
         start = (start_x, start_y)
@@ -24,7 +25,7 @@ def generate_map(size):
         exit_y = random.randint(0, size - 1)
         exit = (exit_x, exit_y)
 
-        if start != exit:
+        if start != exit and abs(start_x - exit_x) >= min_distance and abs(start_y - exit_y) >= min_distance:
             map[start_x][start_y] = "P"
             map[exit_x][exit_y] = "E"
 
