@@ -156,8 +156,9 @@ def settings(enemies_count, levels, time_limit):
 def instructions():
     print("--- Instrukcje ---")
     print("Celem gry jest dotarcie do wyjścia (E).")
-    print("Poruszaj się klawiszami WASD. Unikaj przeciwników (X) i dziur (O).")
+    print("Poruszaj się klawiszami WASD. Unikaj przeciwników (X)")
     print("Otwieraj skarby (S) i zbieraj przedmioty które pomogą ci w przejściu gry!")
+    print("Dziury (O) są zazwyczaj nieszkodliwe chociaż czasem może im się odwidzieć.")
     input("Naciśnij Enter, aby wrócić do menu.")
 
 def play_game(enemies_count, levels, time_limit):
