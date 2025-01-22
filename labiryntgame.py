@@ -79,7 +79,7 @@ def move_player(map, position, direction):
     return position
 
 def move_enemies(map, enemies):
-    new_enemies = []
+    nextenemiesmove = []
     for ex, ey in enemies:
         map[ex][ey] = " "
         possible_directions = [
@@ -92,16 +92,16 @@ def move_enemies(map, enemies):
         moved = False
         for nx, ny in possible_directions:
             if 0 <= nx < len(map) and 0 <= ny < len(map[0]) and map[nx][ny] == " ":
-                new_enemies.append((nx, ny))
+                nextenemiesmove.append((nx, ny))
                 moved = True
                 break
 
         if not moved:
-            new_enemies.append((ex, ey))
+            nextenemiesmove.append((ex, ey))
 
-    for ex, ey in new_enemies:
+    for ex, ey in nextenemiesmove:
         map[ex][ey] = "X"
-    return new_enemies
+    return nextenemiesmove
 
 def place_items(map, item, count):
     size = len(map)
@@ -219,22 +219,22 @@ def play_game(enemies_count, levels, time_limit):
                     time.sleep(1)
                 continue
 
-            new_player = move_player(map, player, move)
+            nextplayermove = move_player(map, player, move)
 
-            if new_player in enemies:
+            if nextplayermove in enemies:
                 if "Miecz" in inventory:
                     print("Pokonałeś przeciwnika!")
                     time.sleep(1)
                     inventory.remove("Miecz")
-                    enemies.remove(new_player)
-                    map[new_player[0]][new_player[1]] = " "
+                    enemies.remove(nextplayermove)
+                    map[nextplayermove[0]][nextplayermove[1]] = " "
                 else:
                     lives -= 1
                     if lives == 0:
                         print("Zostałeś pokonany! Gra skończona.")
                         return
 
-            elif new_player in holes:
+            elif nextplayermove in holes:
                 if random.random() < 0.1:
                     lives -= 1
                     if lives == 0:
@@ -247,7 +247,7 @@ def play_game(enemies_count, levels, time_limit):
                         continue
                 
                 dx, dy = {"w": (-1, 0), "s": (1, 0), "a": (0, -1), "d": (0, 1)}[move]
-                nx, ny = new_player[0] + dx, new_player[1] + dy
+                nx, ny = nextplayermove[0] + dx, nextplayermove[1] + dy
                 if 0 <= nx < len(map) and 0 <= ny < len(map[0]):
                     if map[nx][ny] == "#":
                         print("Za dziurą jest ściana. Nie możesz przeskoczyć!")
@@ -264,13 +264,13 @@ def play_game(enemies_count, levels, time_limit):
                             time.sleep(1)
                             continue
                     elif map[nx][ny] == " ":
-                        new_player = (nx, ny)
+                        nextplayermove = (nx, ny)
                 else:
                     print("Za dziurą jest koniec mapy. Nie możesz przeskoczyć!")
                     time.sleep(1)
                     continue
 
-            elif new_player in treasures:
+            elif nextplayermove in treasures:
                 if lives == 2:
                     treasure = random.choice(["Bomba", "Miecz"])
                 else:
@@ -281,39 +281,37 @@ def play_game(enemies_count, levels, time_limit):
                 elif treasure != "Serce":
                     inventory.append(treasure)
                 print(f"Znalazłeś: {treasure}!")
-                treasures.remove(new_player)
+                time.sleep(1)
+                treasures.remove(nextplayermove)
 
-            if new_player == exit:
+            if nextplayermove == exit:
                 print(f"Brawo! Ukończyłeś poziom {level}.")
                 input("Naciśnij Enter, aby przejść dalej.")
                 break
 
             map[player[0]][player[1]] = " "
-            map[new_player[0]][new_player[1]] = "P"
-            player = new_player
+            map[nextplayermove[0]][nextplayermove[1]] = "P"
+            player = nextplayermove
 
             enemies = move_enemies(map, enemies)
 
     print("Gratulacje! Ukończyłeś wszystkie poziomy!")
 
-
-if __name__ == "__main__":
-    enemies_count, levels, time_limit = 3, 3, 120
-
-    while True:
-        choice = main_menu()
-        if choice == "1":
-            play_game(enemies_count, levels, time_limit)
-        elif choice == "2":
-            enemies_count, levels, time_limit = settings(enemies_count, levels, time_limit)
-        elif choice == "3":
-            instructions()
-        elif choice == "4":
-            print("Wychodzenie...")
-            break
-        elif choice == "q":
-            print("Wychodzenie...")
-            break
-        elif choice == "quit":
-            print("Wychodzenie...")
-            break
+enemies_count, levels, time_limit = 3, 3, 120
+while True:
+    choice = main_menu()
+    if choice == "1":
+        play_game(enemies_count, levels, time_limit)
+    elif choice == "2":
+        enemies_count, levels, time_limit = settings(enemies_count, levels, time_limit)
+    elif choice == "3":
+        instructions()
+    elif choice == "4":
+        print("Wychodzenie...")
+        break
+    elif choice == "q":
+        print("Wychodzenie...")
+        break
+    elif choice == "quit":
+        print("Wychodzenie...")
+        break
