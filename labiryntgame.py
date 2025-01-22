@@ -24,8 +24,7 @@ def generate_map(size):
         exit_y = random.randint(0, size - 1)
         exit = (exit_x, exit_y)
 
-        distance = abs(start_x - exit_x) + abs(start_y - exit_y)
-        if start != exit and distance > 3:
+        if start != exit:
             map[start_x][start_y] = "P"
             map[exit_x][exit_y] = "E"
 
