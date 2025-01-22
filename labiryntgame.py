@@ -5,7 +5,7 @@ import os
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def generate_map(size, min_distance=5):
+def generate_map(size, min_distance=7):
     while True:
         map = []
         for i in range(size):
