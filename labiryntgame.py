@@ -222,6 +222,7 @@ def play_game(enemies_count, levels, time_limit):
                 continue
 
             nextplayermove = move_player(map, player, move)
+            os.system('cls' if os.name == 'nt' else 'clear')
 
             if nextplayermove in enemies:
                 if "Miecz" in inventory:
